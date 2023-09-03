@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: my-app-container
-          image: my-app:latest  #  имя вашего Docker-образа
+          image: my-app:latest  
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
@@ -23,16 +23,16 @@ spec:
             - name: UUID
               valueFrom:
                 fieldRef:
-                  fieldPath: metadata.uid  # Используем UID пода как UUID
+                  fieldPath: metadata.uid  
           readinessProbe:
             httpGet:
-              path: /healthz  # Путь для проверки готовности приложения
+              path: /healthz  
               port: 8000
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /healthz  # Путь для проверки жизнеспособности приложения
+              path: /healthz  
               port: 8000
             initialDelaySeconds: 10
             periodSeconds: 15
