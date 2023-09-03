@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+  namespace: app-namespace
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-app-container
+          image: my-app:latest  #  имя вашего Docker-образа
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: UUID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid  # Используем UID пода как UUID
+          readinessProbe:
+            httpGet:
+              path: /healthz  # Путь для проверки готовности приложения
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz  # Путь для проверки жизнеспособности приложения
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
