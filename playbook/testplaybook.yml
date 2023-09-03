@@ -1,0 +1,42 @@
+---
+- name: Configure SSH and create a new user
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create the cloudru user
+      user:
+        name: cloudru
+        password: "{{ 'cloudpass' | password_hash('sha512') }}"
+        state: present
+      become: yes
+
+    - name: Allow SSH access via keys only
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+      become: yes
+      notify:
+        - restart sshd
+
+    - name: Disable SSH login for root
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+      become: yes
+      notify:
+        - restart sshd
+
+    - name: Copy the public key to the cloudru user
+      authorized_key:
+        user: cloudru
+        key: "{{ lookup('file', './public_key.pub') }}"
+        state: present
+      become: yes
+
+  handlers:
+    - name: restart sshd
+      service:
+        name: ssh
+        state: restarted
